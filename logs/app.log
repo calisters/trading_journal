@@ -1,0 +1,25 @@
+2026-02-26 12:00:49,262 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 12:01:14,624 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-26 12:01:14,651 | INFO     | parsers.ibkr_tlg | Parsed 90 fills from account U6445807
+2026-02-26 12:01:14,760 | INFO     | analytics.trade_builder | Built 43 round-trip trades from 90 fills
+2026-02-26 12:01:14,892 | INFO     | ui.upload | Ingested U6445807_20260101_20260225.tlg: 90 fills (+0 skipped), 43 trades
+2026-02-26 12:55:18,774 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:00:34,016 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:20:25,485 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:21:28,997 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:21:56,378 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:23:18,637 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:26:51,400 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:27:56,680 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:29:41,890 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:30:49,775 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:32:00,845 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:41:52,444 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:44:21,094 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:47:06,711 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:49:47,340 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-02-26 13:55:01,298 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-26 13:55:01,304 | INFO     | parsers.ibkr_tlg | Parsed 44 fills from account U6445807
+2026-02-26 13:55:01,395 | INFO     | analytics.trade_builder | Built 62 round-trip trades from 134 fills
+2026-02-26 13:55:01,583 | INFO     | ui.upload | Ingested U6445807_20250101_20260101.tlg: 44 fills (+0 skipped), 62 trades
+2026-02-27 15:05:35,133 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
