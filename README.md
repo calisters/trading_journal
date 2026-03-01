@@ -1,5 +1,7 @@
 # Trading Journal
 
+https://journal22.streamlit.app
+
 A production-grade local trading journal for IBKR Trade Log (.tlg) files.
 Built with Streamlit · Pandas · SQLite/SQLAlchemy · Plotly.
 
