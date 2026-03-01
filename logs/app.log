@@ -35,3 +35,7 @@
 2026-02-28 11:14:06,449 | INFO     | ui.upload | Ingested U6445807_20260101_20260225.tlg: 90 fills (+0 skipped), 43 trades
 2026-02-28 11:14:44,251 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
 2026-02-28 11:14:44,258 | INFO     | parsers.ibkr_tlg | Parsed 90 fills from account U6445807
+2026-02-28 11:24:48,970 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 11:24:48,981 | INFO     | parsers.ibkr_tlg | Parsed 4 fills from account U6445807
+2026-02-28 11:24:49,013 | INFO     | analytics.trade_builder | Built 45 round-trip trades from 94 fills
+2026-02-28 11:24:49,129 | INFO     | ui.upload | Ingested U6445807_20260227.tlg: 4 fills (+0 skipped), 45 trades
