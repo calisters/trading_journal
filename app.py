@@ -106,3 +106,4 @@ elif page == "📊 Dashboard":
     render_dashboard_page()
 elif page == "🔍 Insights":
     render_insights_page()
+

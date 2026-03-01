@@ -39,3 +39,56 @@
 2026-02-28 11:24:48,981 | INFO     | parsers.ibkr_tlg | Parsed 4 fills from account U6445807
 2026-02-28 11:24:49,013 | INFO     | analytics.trade_builder | Built 45 round-trip trades from 94 fills
 2026-02-28 11:24:49,129 | INFO     | ui.upload | Ingested U6445807_20260227.tlg: 4 fills (+0 skipped), 45 trades
+2026-02-28 11:46:32,333 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 11:46:49,928 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 11:47:01,451 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:02:33,949 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:03:13,179 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:07:45,297 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:11:25,639 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:12:10,377 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:16:40,350 | INFO     | db.database | Database initialised at c:\dev\trading_journal\trading_journal.db
+2026-02-28 12:18:45,652 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:18:45,652 | INFO     | parsers.ibkr_tlg | Parsed 44 fills from account U6445807
+2026-02-28 12:18:45,731 | INFO     | analytics.trade_builder | Built 64 round-trip trades from 138 fills
+2026-02-28 12:18:45,897 | INFO     | ui.upload | Ingested U6445807_20250101_20260101.tlg: 44 fills (+0 skipped), 64 trades
+2026-02-28 12:20:31,530 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:20:31,546 | INFO     | parsers.ibkr_tlg | Parsed 44 fills from account U6445807
+2026-02-28 12:20:31,546 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:20:31,562 | INFO     | parsers.ibkr_tlg | Parsed 153 fills from account U6445807
+2026-02-28 12:20:31,677 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:20:31,709 | INFO     | analytics.trade_builder | Built 132 round-trip trades from 291 fills
+2026-02-28 12:20:31,915 | INFO     | ui.upload | Ingested U6445807_20210623_20220623.tlg: 153 fills (+0 skipped), 132 trades
+2026-02-28 12:21:50,887 | WARNING  | db.database | Database reset: all data cleared.
+2026-02-28 12:21:54,125 | WARNING  | db.database | Database reset: all data cleared.
+2026-02-28 12:22:08,621 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:22:08,637 | INFO     | parsers.ibkr_tlg | Parsed 153 fills from account U6445807
+2026-02-28 12:22:08,743 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:22:08,759 | INFO     | analytics.trade_builder | Built 68 round-trip trades from 153 fills
+2026-02-28 12:22:08,946 | INFO     | ui.upload | Ingested U6445807_20210623_20220623.tlg: 153 fills (+0 skipped), 68 trades
+2026-02-28 12:31:26,509 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:31:26,512 | INFO     | parsers.ibkr_tlg | Parsed 10 fills from account U6445807
+2026-02-28 12:31:26,543 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:31:26,559 | INFO     | analytics.trade_builder | Built 73 round-trip trades from 163 fills
+2026-02-28 12:31:26,730 | INFO     | ui.upload | Ingested U6445807_20220624_20230623.tlg: 10 fills (+0 skipped), 73 trades
+2026-02-28 12:32:06,709 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:32:06,715 | INFO     | parsers.ibkr_tlg | Parsed 77 fills from account U6445807
+2026-02-28 12:32:06,778 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:32:06,801 | WARNING  | analytics.trade_builder | Symbol MOBQ has unclosed position 0.93 — recording partial trade
+2026-02-28 12:32:06,811 | INFO     | analytics.trade_builder | Built 110 round-trip trades from 240 fills
+2026-02-28 12:32:07,010 | INFO     | ui.upload | Ingested U6445807_20230623_20240621.tlg: 77 fills (+0 skipped), 110 trades
+2026-02-28 12:32:46,017 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:32:46,017 | INFO     | parsers.ibkr_tlg | Parsed 141 fills from account U6445807
+2026-02-28 12:32:46,152 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:32:46,152 | WARNING  | analytics.trade_builder | Symbol MOBQ has unclosed position 0.93 — recording partial trade
+2026-02-28 12:32:46,168 | INFO     | analytics.trade_builder | Built 178 round-trip trades from 381 fills
+2026-02-28 12:32:46,465 | INFO     | ui.upload | Ingested U6445807_20240624_20250620.tlg: 141 fills (+0 skipped), 178 trades
+2026-02-28 12:33:31,414 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-02-28 12:33:31,424 | INFO     | parsers.ibkr_tlg | Parsed 132 fills from account U6445807
+2026-02-28 12:33:31,546 | WARNING  | analytics.trade_builder | Symbol CNTX has unclosed position 0.00 — recording partial trade
+2026-02-28 12:33:31,561 | WARNING  | analytics.trade_builder | Symbol MOBQ has unclosed position 0.93 — recording partial trade
+2026-02-28 12:33:31,600 | INFO     | analytics.trade_builder | Built 239 round-trip trades from 513 fills
+2026-02-28 12:33:31,999 | INFO     | ui.upload | Ingested U6445807_20250623_20260227.tlg: 132 fills (+0 skipped), 239 trades
+2026-03-01 07:27:48,950 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-03-01 07:32:21,767 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-03-01 08:18:09,083 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db

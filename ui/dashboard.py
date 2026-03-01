@@ -547,7 +547,7 @@ def _build_month_html(month: int, year: int, day_pnl: dict) -> str:
     """Build a fully inline-styled month calendar block."""
     month_name = calendar.month_name[month]
     n_days = (date(year, month % 12 + 1, 1) - timedelta(days=1)).day if month < 12 else 31
-    first_dow = date(year, month, 1).weekday()  # 0=Mon
+    first_dow = (date(year, month, 1).weekday() + 1) % 7  # 0=Sun, 1=Mon, ..., 6=Sat
 
     # ── Styles (all inline, no class dependency) ──────────────────────────────
     GRID  = "display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"
@@ -568,7 +568,7 @@ def _build_month_html(month: int, year: int, day_pnl: dict) -> str:
     PNL_LOSS = "font-size:9.5px;font-weight:600;color:#FF453A;text-align:right;font-family:monospace;"
 
     # Header row
-    day_labels = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+    day_labels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
     cells = "".join(f'<div style="{HDR}">{d}</div>' for d in day_labels)
 
     # Empty offset cells
@@ -580,13 +580,13 @@ def _build_month_html(month: int, year: int, day_pnl: dict) -> str:
         if pnl is None:
             cells += f'<div style="{NOTRADE}"><div style="{DAY_NT}">{d}</div></div>'
         elif pnl >= 0:
-            pnl_str = f"+${pnl:,.0f}" if pnl >= 1 else f"+${pnl:.2f}"
+            pnl_str = f"+${pnl:,.2f}" if pnl >= 1 else f"+${pnl:.2f}"
             cells += (f'<div style="{WIN}">'
                       f'<div style="{DAY_WIN}">{d}</div>'
                       f'<div style="{PNL_WIN}">{pnl_str}</div>'
                       f'</div>')
         else:
-            pnl_str = f"-${abs(pnl):,.0f}" if abs(pnl) >= 1 else f"-${abs(pnl):.2f}"
+            pnl_str = f"-${abs(pnl):,.2f}" if abs(pnl) >= 1 else f"-${abs(pnl):.2f}"
             cells += (f'<div style="{LOSS}">'
                       f'<div style="{DAY_LOSS}">{d}</div>'
                       f'<div style="{PNL_LOSS}">{pnl_str}</div>'

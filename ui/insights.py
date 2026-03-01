@@ -256,10 +256,10 @@ def render_insights_page():
     best_syms  = insights.get("best_symbols", [])
     worst_syms = insights.get("worst_symbols", [])
     col_b, col_w = st.columns(2)
-    with col_b:
-        st.markdown(_sym_section("Best Symbols", best_syms, G), unsafe_allow_html=True)
-    with col_w:
-        st.markdown(_sym_section("Worst Symbols", worst_syms, R), unsafe_allow_html=True)
+    # with col_b:
+    #     st.markdown(_sym_section("Best Symbols", best_syms, G), unsafe_allow_html=True)
+    # with col_w:
+    #     st.markdown(_sym_section("Worst Symbols", worst_syms, R), unsafe_allow_html=True)
 
     st.markdown(_divider(), unsafe_allow_html=True)
 
