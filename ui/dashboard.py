@@ -427,7 +427,7 @@ def render_dashboard_page():
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
     # ── Calendar ──────────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">Daily P&L Calendar</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Daily Return Calendar</div>', unsafe_allow_html=True)
     daily = compute_daily_pnl(df)
     if not daily.empty:
         _render_calendar(daily)
@@ -500,20 +500,20 @@ def _render_calendar(daily: pd.DataFrame):
     # Summary bar
     win_days  = int((yr_data["net_pnl"] > 0).sum())
     loss_days = int((yr_data["net_pnl"] <= 0).sum())
-    total_pnl = yr_data["net_pnl"].sum()
-    best_day  = yr_data.loc[yr_data["net_pnl"].idxmax()] if not yr_data.empty else None
-    worst_day = yr_data.loc[yr_data["net_pnl"].idxmin()] if not yr_data.empty else None
+    total_ret = yr_data["return_pct"].sum()
+    best_day  = yr_data.loc[yr_data["return_pct"].idxmax()] if not yr_data.empty else None
+    worst_day = yr_data.loc[yr_data["return_pct"].idxmin()] if not yr_data.empty else None
 
-    bd_str = f"+${best_day['net_pnl']:,.2f}" if best_day is not None else "—"
-    wd_str  = f"-${abs(worst_day['net_pnl']):,.2f}" if worst_day is not None else "—"
-    pnl_color = "#30D158" if total_pnl >= 0 else "#FF453A"
+    bd_str = f"+{best_day['return_pct']:.2f}%" if best_day is not None else "—"
+    wd_str  = f"{worst_day['return_pct']:.2f}%" if worst_day is not None else "—"
+    ret_color = "#30D158" if total_ret >= 0 else "#FF453A"
 
     summary_html = f"""
     <div style="display:flex;gap:24px;margin-bottom:18px;padding:14px 18px;
                 background:#1C1C1E;border-radius:12px;border:1px solid rgba(255,255,255,0.07);
                 flex-wrap:wrap;">
-        <div style="font-size:12px;color:#8E8E93;">Year P&L&nbsp;
-            <span style="color:{pnl_color};font-weight:600;font-family:monospace;">${total_pnl:+,.2f}</span>
+        <div style="font-size:12px;color:#8E8E93;">Year Return&nbsp;
+            <span style="color:{ret_color};font-weight:600;font-family:monospace;">{total_ret:+.2f}%</span>
         </div>
         <div style="font-size:12px;color:#8E8E93;">Green Days&nbsp;
             <span style="color:#30D158;font-weight:600;">{win_days}</span>
@@ -535,7 +535,7 @@ def _render_calendar(daily: pd.DataFrame):
         cols = st.columns(3)
         for i, m in enumerate(month_list[row_start:row_start + 3]):
             m_data = yr_data[yr_data["month"] == m]
-            day_pnl = {int(r["day"]): r["net_pnl"] for _, r in m_data.iterrows()}
+            day_pnl = {int(r["day"]): r["return_pct"] for _, r in m_data.iterrows()}
             with cols[i]:
                 st.markdown(
                     _build_month_html(m, year_sel, day_pnl),
@@ -580,13 +580,13 @@ def _build_month_html(month: int, year: int, day_pnl: dict) -> str:
         if pnl is None:
             cells += f'<div style="{NOTRADE}"><div style="{DAY_NT}">{d}</div></div>'
         elif pnl >= 0:
-            pnl_str = f"+${pnl:,.2f}" if pnl >= 1 else f"+${pnl:.2f}"
+            pnl_str = f"+{pnl:.2f}%"
             cells += (f'<div style="{WIN}">'
                       f'<div style="{DAY_WIN}">{d}</div>'
                       f'<div style="{PNL_WIN}">{pnl_str}</div>'
                       f'</div>')
         else:
-            pnl_str = f"-${abs(pnl):,.2f}" if abs(pnl) >= 1 else f"-${abs(pnl):.2f}"
+            pnl_str = f"{pnl:.2f}%"
             cells += (f'<div style="{LOSS}">'
                       f'<div style="{DAY_LOSS}">{d}</div>'
                       f'<div style="{PNL_LOSS}">{pnl_str}</div>'

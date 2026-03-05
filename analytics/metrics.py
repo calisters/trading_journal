@@ -83,6 +83,7 @@ def compute_daily_pnl(df: pd.DataFrame) -> pd.DataFrame:
         df.groupby("exit_date")
         .agg(
             net_pnl=("net_pnl", "sum"),
+            return_pct=("return_pct", "sum"),
             trades=("id", "count"),
         )
         .reset_index()
