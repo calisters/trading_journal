@@ -46,6 +46,11 @@ def load_trades_df(session) -> pd.DataFrame:
         if r["deployed_notional"] and r["deployed_notional"] != 0 else 0.0,
         axis=1,
     )
+    df["gross_return_pct"] = df.apply(
+        lambda r: r["gross_pnl"] / r["deployed_notional"] * 100
+        if r["deployed_notional"] and r["deployed_notional"] != 0 else 0.0,
+        axis=1,
+    )
     df["is_win"] = df["net_pnl"] > 0
     return df
 
@@ -84,6 +89,7 @@ def compute_daily_pnl(df: pd.DataFrame) -> pd.DataFrame:
         .agg(
             net_pnl=("net_pnl", "sum"),
             return_pct=("return_pct", "sum"),
+            gross_return_pct=("gross_return_pct", "sum"),
             trades=("id", "count"),
         )
         .reset_index()

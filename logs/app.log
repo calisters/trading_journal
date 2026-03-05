@@ -98,3 +98,10 @@
 2026-03-05 08:55:05,892 | INFO     | parsers.ibkr_tlg | Parsed 132 fills from account U6445807
 2026-03-05 08:55:06,078 | INFO     | analytics.trade_builder | Built 61 round-trip trades from 132 fills
 2026-03-05 08:55:06,188 | INFO     | ui.upload | Ingested U6445807_20250623_20260227.tlg: 132 fills (+0 skipped), 61 trades
+2026-03-05 09:45:18,156 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-03-05 09:46:03,198 | INFO     | db.database | Database initialised at C:\dev\trading_journal\trading_journal.db
+2026-03-05 09:47:15,527 | WARNING  | db.database | Database reset: all data cleared.
+2026-03-05 09:47:28,003 | INFO     | parsers.ibkr_tlg | Account ID: U6445807
+2026-03-05 09:47:28,018 | INFO     | parsers.ibkr_tlg | Parsed 102 fills from account U6445807
+2026-03-05 09:47:28,103 | INFO     | analytics.trade_builder | Built 49 round-trip trades from 102 fills
+2026-03-05 09:47:28,250 | INFO     | ui.upload | Ingested U6445807_20260101_20260304.tlg: 102 fills (+0 skipped), 49 trades

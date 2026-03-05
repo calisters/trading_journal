@@ -428,9 +428,15 @@ def render_dashboard_page():
 
     # ── Calendar ──────────────────────────────────────────────────────────────
     st.markdown('<div class="section-title">Daily Return Calendar</div>', unsafe_allow_html=True)
+    cal_mode = st.radio(
+        "calendar_mode",
+        ["Gross %", "Net %"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
     daily = compute_daily_pnl(df)
     if not daily.empty:
-        _render_calendar(daily)
+        _render_calendar(daily, mode=cal_mode)
 
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
@@ -486,33 +492,36 @@ def render_dashboard_page():
 
 # ── Calendar helpers ──────────────────────────────────────────────────────────
 
-def _render_calendar(daily: pd.DataFrame):
+def _render_calendar(daily: pd.DataFrame, mode: str = "Gross %"):
     daily = daily.copy()
     daily["exit_date"] = pd.to_datetime(daily["exit_date"])
     daily["year"]  = daily["exit_date"].dt.year
     daily["month"] = daily["exit_date"].dt.month
     daily["day"]   = daily["exit_date"].dt.day
 
+    pct_col = "gross_return_pct" if mode == "Gross %" else "return_pct"
+    mode_label = "Gross Return" if mode == "Gross %" else "Net Return"
+
     years = sorted(daily["year"].unique())
     year_sel = st.selectbox("Year", years, index=len(years) - 1, label_visibility="collapsed")
     yr_data = daily[daily["year"] == year_sel]
 
     # Summary bar
-    win_days  = int((yr_data["net_pnl"] > 0).sum())
-    loss_days = int((yr_data["net_pnl"] <= 0).sum())
-    total_ret = yr_data["return_pct"].sum()
-    best_day  = yr_data.loc[yr_data["return_pct"].idxmax()] if not yr_data.empty else None
-    worst_day = yr_data.loc[yr_data["return_pct"].idxmin()] if not yr_data.empty else None
+    win_days  = int((yr_data[pct_col] > 0).sum())
+    loss_days = int((yr_data[pct_col] <= 0).sum())
+    total_ret = yr_data[pct_col].sum()
+    best_day  = yr_data.loc[yr_data[pct_col].idxmax()] if not yr_data.empty else None
+    worst_day = yr_data.loc[yr_data[pct_col].idxmin()] if not yr_data.empty else None
 
-    bd_str = f"+{best_day['return_pct']:.2f}%" if best_day is not None else "—"
-    wd_str  = f"{worst_day['return_pct']:.2f}%" if worst_day is not None else "—"
+    bd_str = f"+{best_day[pct_col]:.2f}%" if best_day is not None else "—"
+    wd_str  = f"{worst_day[pct_col]:.2f}%" if worst_day is not None else "—"
     ret_color = "#30D158" if total_ret >= 0 else "#FF453A"
 
     summary_html = f"""
     <div style="display:flex;gap:24px;margin-bottom:18px;padding:14px 18px;
                 background:#1C1C1E;border-radius:12px;border:1px solid rgba(255,255,255,0.07);
                 flex-wrap:wrap;">
-        <div style="font-size:12px;color:#8E8E93;">Year Return&nbsp;
+        <div style="font-size:12px;color:#8E8E93;">Year {mode_label}&nbsp;
             <span style="color:{ret_color};font-weight:600;font-family:monospace;">{total_ret:+.2f}%</span>
         </div>
         <div style="font-size:12px;color:#8E8E93;">Green Days&nbsp;
@@ -535,7 +544,7 @@ def _render_calendar(daily: pd.DataFrame):
         cols = st.columns(3)
         for i, m in enumerate(month_list[row_start:row_start + 3]):
             m_data = yr_data[yr_data["month"] == m]
-            day_pnl = {int(r["day"]): r["return_pct"] for _, r in m_data.iterrows()}
+            day_pnl = {int(r["day"]): r[pct_col] for _, r in m_data.iterrows()}
             with cols[i]:
                 st.markdown(
                     _build_month_html(m, year_sel, day_pnl),
