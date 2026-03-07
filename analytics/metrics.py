@@ -59,11 +59,12 @@ def compute_equity_curve(df: pd.DataFrame) -> pd.DataFrame:
     """Cumulative PnL ($ and %) sorted by exit_time."""
     if df.empty:
         return pd.DataFrame()
-    sorted_df = df.sort_values("exit_time").copy()
     sorted_df = df[df["deployed_notional"] > 0].sort_values("exit_time").copy()
     sorted_df["cum_pnl_usd"] = sorted_df["net_pnl"].cumsum()
     sorted_df["cum_return_pct"] = sorted_df["return_pct"].cumsum()
-    return sorted_df[["exit_time", "net_pnl", "cum_pnl_usd", "return_pct", "cum_return_pct"]]
+    sorted_df["cum_gross_return_pct"] = sorted_df["gross_return_pct"].cumsum()
+    return sorted_df[["exit_time", "net_pnl", "cum_pnl_usd", "return_pct",
+                       "cum_return_pct", "gross_return_pct", "cum_gross_return_pct"]]
 
 
 def compute_drawdown(equity_curve: pd.DataFrame) -> pd.DataFrame:
@@ -122,14 +123,21 @@ def compute_summary_metrics(df: pd.DataFrame) -> dict:
     dd = compute_drawdown(eq)
     max_drawdown_pct = dd["drawdown_pct"].min() if not dd.empty else 0
 
-    # Best/worst day
-    daily = compute_daily_pnl(df)
-    best_day = daily.loc[daily["net_pnl"].idxmax()] if not daily.empty else None
-    worst_day = daily.loc[daily["net_pnl"].idxmin()] if not daily.empty else None
+    # Gross return % stats
+    wins_gross  = df[df["gross_return_pct"] > 0]["gross_return_pct"]
+    losses_gross = df[df["gross_return_pct"] <= 0]["gross_return_pct"]
+    avg_win_pct  = wins_gross.mean() if len(wins_gross) else 0
+    avg_loss_pct = losses_gross.mean() if len(losses_gross) else 0
+    total_gross_return_pct = df["gross_return_pct"].sum()
 
-    # Best/worst symbol
-    by_sym = df.groupby("symbol")["net_pnl"].sum()
-    best_sym = by_sym.idxmax() if not by_sym.empty else ""
+    # Best/worst day by gross return %
+    daily = compute_daily_pnl(df)
+    best_day  = daily.loc[daily["gross_return_pct"].idxmax()] if not daily.empty else None
+    worst_day = daily.loc[daily["gross_return_pct"].idxmin()] if not daily.empty else None
+
+    # Best/worst symbol by gross return %
+    by_sym = df.groupby("symbol")["gross_return_pct"].sum()
+    best_sym  = by_sym.idxmax() if not by_sym.empty else ""
     worst_sym = by_sym.idxmin() if not by_sym.empty else ""
 
     return {
@@ -139,6 +147,9 @@ def compute_summary_metrics(df: pd.DataFrame) -> dict:
         "expectancy": expectancy,
         "avg_win": avg_win,
         "avg_loss": avg_loss,
+        "avg_win_pct": avg_win_pct,
+        "avg_loss_pct": avg_loss_pct,
+        "total_gross_return_pct": total_gross_return_pct,
         "total_net_pnl": df["net_pnl"].sum(),
         "total_commission": df["total_commission"].sum(),
         "max_drawdown_pct": max_drawdown_pct,
@@ -162,17 +173,17 @@ def compute_insights(df: pd.DataFrame) -> dict:
     insights = {}
 
     # ── Symbol performance ──────────────────────────────────────────────────
-    sym_pnl = df.groupby("symbol")["net_pnl"].agg(["sum", "count", "mean"]).reset_index()
+    sym_pnl = df.groupby("symbol")["gross_return_pct"].agg(["sum", "count", "mean"]).reset_index()
     sym_pnl.columns = ["symbol", "total_pnl", "trades", "avg_pnl"]
     sym_pnl = sym_pnl.sort_values("total_pnl", ascending=False)
-    insights["best_symbols"] = sym_pnl.head(3).to_dict("records")
+    insights["best_symbols"]  = sym_pnl.head(3).to_dict("records")
     insights["worst_symbols"] = sym_pnl.tail(3).to_dict("records")
 
     # ── Day-of-week performance ─────────────────────────────────────────────
     df2 = df.copy()
     df2["dow"] = pd.to_datetime(df2["exit_time"]).dt.day_name()
     dow_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    dow = df2.groupby("dow")["net_pnl"].agg(["sum", "count", "mean"]).reindex(dow_order).reset_index()
+    dow = df2.groupby("dow")["gross_return_pct"].agg(["sum", "count", "mean"]).reindex(dow_order).reset_index()
     dow.columns = ["day", "total_pnl", "trades", "avg_pnl"]
     insights["dow_performance"] = dow.to_dict("records")
 
