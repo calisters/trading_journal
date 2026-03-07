@@ -67,19 +67,6 @@ def compute_equity_curve(df: pd.DataFrame) -> pd.DataFrame:
                        "cum_return_pct", "gross_return_pct", "cum_gross_return_pct"]]
 
 
-def compute_drawdown(equity_curve: pd.DataFrame) -> pd.DataFrame:
-    """Peak-to-trough drawdown on cumulative $ PnL."""
-    if equity_curve.empty:
-        return pd.DataFrame()
-    ec = equity_curve.copy()
-    ec["peak"] = ec["cum_pnl_usd"].cummax()
-    ec["drawdown_usd"] = ec["cum_pnl_usd"] - ec["peak"]
-    ec["drawdown_pct"] = ec.apply(
-        lambda r: (r["drawdown_usd"] / r["peak"] * 100) if r["peak"] != 0 else 0.0,
-        axis=1,
-    )
-    return ec
-
 
 def compute_daily_pnl(df: pd.DataFrame) -> pd.DataFrame:
     """Daily aggregated net PnL and return %."""
@@ -100,34 +87,23 @@ def compute_daily_pnl(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def compute_summary_metrics(df: pd.DataFrame) -> dict:
-    """Win rate, profit factor, expectancy, avg win/loss, etc."""
+    """Win rate, expectancy, avg win/loss — all gross % based."""
     if df.empty:
         return {}
 
-    wins = df[df["net_pnl"] > 0]
-    losses = df[df["net_pnl"] <= 0]
     n = len(df)
 
-    win_rate = len(wins) / n * 100 if n else 0
-    avg_win = wins["net_pnl"].mean() if len(wins) else 0
-    avg_loss = losses["net_pnl"].mean() if len(losses) else 0
-
-    gross_profit = wins["net_pnl"].sum()
-    gross_loss = abs(losses["net_pnl"].sum())
-    profit_factor = gross_profit / gross_loss if gross_loss != 0 else float("inf")
-
-    expectancy = (win_rate / 100 * avg_win) + ((1 - win_rate / 100) * avg_loss)
-
-    # Equity curve for drawdown
-    eq = compute_equity_curve(df)
-    dd = compute_drawdown(eq)
-    max_drawdown_pct = dd["drawdown_pct"].min() if not dd.empty else 0
-
-    # Gross return % stats
-    wins_gross  = df[df["gross_return_pct"] > 0]["gross_return_pct"]
+    # All win/loss classification and P&L on gross_return_pct
+    wins_gross   = df[df["gross_return_pct"] > 0]["gross_return_pct"]
     losses_gross = df[df["gross_return_pct"] <= 0]["gross_return_pct"]
-    avg_win_pct  = wins_gross.mean() if len(wins_gross) else 0
-    avg_loss_pct = losses_gross.mean() if len(losses_gross) else 0
+
+    win_rate     = len(wins_gross) / n * 100 if n else 0
+    avg_win_pct  = wins_gross.mean()  if len(wins_gross)   else 0.0
+    avg_loss_pct = losses_gross.mean() if len(losses_gross) else 0.0
+
+    # Expectancy in gross % terms: E = (WR * avg_win%) + ((1-WR) * avg_loss%)
+    expectancy_pct = (win_rate / 100 * avg_win_pct) + ((1 - win_rate / 100) * avg_loss_pct)
+
     total_gross_return_pct = df["gross_return_pct"].sum()
 
     # Best/worst day by gross return %
@@ -143,22 +119,16 @@ def compute_summary_metrics(df: pd.DataFrame) -> dict:
     return {
         "n_trades": n,
         "win_rate": win_rate,
-        "profit_factor": profit_factor,
-        "expectancy": expectancy,
-        "avg_win": avg_win,
-        "avg_loss": avg_loss,
+        "expectancy_pct": expectancy_pct,
         "avg_win_pct": avg_win_pct,
         "avg_loss_pct": avg_loss_pct,
         "total_gross_return_pct": total_gross_return_pct,
         "total_net_pnl": df["net_pnl"].sum(),
         "total_commission": df["total_commission"].sum(),
-        "max_drawdown_pct": max_drawdown_pct,
         "best_day": best_day,
         "worst_day": worst_day,
         "best_symbol": best_sym,
         "worst_symbol": worst_sym,
-        "gross_profit": gross_profit,
-        "gross_loss": gross_loss,
     }
 
 
