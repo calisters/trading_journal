@@ -240,18 +240,18 @@ def render_insights_page():
     # ── Symbol performance ────────────────────────────────────────────────────
     st.markdown(_section_title("Symbol Performance"), unsafe_allow_html=True)
 
-    sym_pnl = df.groupby("symbol")["net_pnl"].sum().reset_index().sort_values("net_pnl")
+    sym_pnl = df.groupby("symbol")["gross_return_pct"].sum().reset_index().sort_values("gross_return_pct")
     bar_colors = ["rgba(48,209,88,0.75)" if v >= 0 else "rgba(255,69,58,0.75)"
-                  for v in sym_pnl["net_pnl"]]
+                  for v in sym_pnl["gross_return_pct"]]
 
     fig_sym = go.Figure(go.Bar(
-        x=sym_pnl["symbol"], y=sym_pnl["net_pnl"],
+        x=sym_pnl["symbol"], y=sym_pnl["gross_return_pct"],
         marker_color=bar_colors, marker_line_width=0,
-        hovertemplate="<b>%{x}</b><br>Net P&L: $%{y:,.2f}<extra></extra>",
+        hovertemplate="<b>%{x}</b><br>Gross Return: %{y:.2f}%<extra></extra>",
     ))
     fig_sym.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.15)")
-    fig_sym.update_layout(**_chart_layout(h=260, xaxis_title="Symbol", yaxis_title="Net P&L ($)"))
-    st.plotly_chart(fig_sym, width="stretch", config={"displayModeBar": False})
+    fig_sym.update_layout(**_chart_layout(h=260, xaxis_title="Symbol", yaxis_title="Gross Return (%)"))
+    st.plotly_chart(fig_sym, width="stretch", config={"staticPlot": True})
 
     best_syms  = insights.get("best_symbols", [])
     worst_syms = insights.get("worst_symbols", [])
@@ -276,11 +276,11 @@ def render_insights_page():
             text=dow_data["trades"].map(str),
             textposition="outside",
             textfont=dict(color=T3, size=10),
-            hovertemplate="<b>%{x}</b><br>P&L: $%{y:,.2f}<br>Trades: %{text}<extra></extra>",
+            hovertemplate="<b>%{x}</b><br>Gross Return: %{y:.2f}%<br>Trades: %{text}<extra></extra>",
         ))
         fig_dow.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.15)")
-        fig_dow.update_layout(**_chart_layout(h=240, yaxis_title="Net P&L ($)"))
-        st.plotly_chart(fig_dow, width="stretch", config={"displayModeBar": False})
+        fig_dow.update_layout(**_chart_layout(h=240, yaxis_title="Gross Return (%)"))
+        st.plotly_chart(fig_dow, width="stretch", config={"staticPlot": True})
 
         # Win rate by day
         df2 = df.copy()
