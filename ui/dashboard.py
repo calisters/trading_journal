@@ -333,16 +333,13 @@ def render_dashboard_page():
 
     # ── Row 1: Core metrics ───────────────────────────────────────────────────
     st.markdown('<div class="section-title">Performance</div>', unsafe_allow_html=True)
-    c1, c2, c3, c4, c5, c6 = st.columns(6)
-    pf = metrics.get("profit_factor", 0)
-    pf_str = "∞" if pf == float("inf") else f"{pf:.2f}"
+    c1, c2, c3, c4 = st.columns(4)
+    exp_pct = metrics.get("expectancy_pct", 0)
     cards = [
-        (c1, "Gross Return",   f"{gross_ret:+.2f}%",                              "",                                   _col(gross_ret)),
-        (c2, "Win Rate",       f"{metrics.get('win_rate', 0):.1f}%",              f"{metrics.get('n_trades',0)} trades", ""),
-        (c3, "Profit Factor",  pf_str,                                             "",                                   "green" if pf > 1 else "red"),
-        (c4, "Expectancy",     _fmt(metrics.get("expectancy", 0), signed=True),   "per trade",                          _col(metrics.get("expectancy", 0))),
-        (c5, "Max Drawdown",   f"{abs(metrics.get('max_drawdown_pct', 0)):.1f}%", "",                                   "red"),
-        (c6, "Trades",         str(metrics.get("n_trades", 0)),                   "",                                   ""),
+        (c1, "Gross Return",  f"{gross_ret:+.2f}%",                        "",              _col(gross_ret)),
+        (c2, "Win Rate",      f"{metrics.get('win_rate', 0):.1f}%",         f"{metrics.get('n_trades',0)} trades", ""),
+        (c3, "Expectancy",    f"{exp_pct:+.2f}%",                           "per trade",     _col(exp_pct)),
+        (c4, "Trades",        str(metrics.get("n_trades", 0)),              "",              ""),
     ]
     for col, label, value, sub, cls in cards:
         with col:
