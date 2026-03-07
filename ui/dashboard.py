@@ -14,7 +14,6 @@ import streamlit as st
 
 from analytics.metrics import (
     compute_daily_pnl,
-    compute_drawdown,
     compute_equity_curve,
     compute_summary_metrics,
     load_trades_df,
@@ -324,7 +323,7 @@ def render_dashboard_page():
         return
 
     metrics = compute_summary_metrics(df)
-    net_pnl = metrics.get("total_net_pnl", 0)
+    gross_ret = metrics.get("total_gross_return_pct", 0)
 
     # ── Page title ────────────────────────────────────────────────────────────
     st.markdown(f"""
@@ -338,12 +337,12 @@ def render_dashboard_page():
     pf = metrics.get("profit_factor", 0)
     pf_str = "∞" if pf == float("inf") else f"{pf:.2f}"
     cards = [
-        (c1, "Net P&L",        _fmt(net_pnl, signed=True),                  "",                                   _col(net_pnl)),
-        (c2, "Win Rate",       f"{metrics.get('win_rate', 0):.1f}%",         f"{metrics.get('n_trades',0)} trades", ""),
-        (c3, "Profit Factor",  pf_str,                                       "",                                   "green" if pf > 1 else "red"),
-        (c4, "Expectancy",     _fmt(metrics.get("expectancy", 0), signed=True), "per trade",                       _col(metrics.get("expectancy", 0))),
-        (c5, "Max Drawdown",   f"{abs(metrics.get('max_drawdown_pct', 0)):.1f}%", "",                              "red"),
-        (c6, "Trades",         str(metrics.get("n_trades", 0)),              "",                                   ""),
+        (c1, "Gross Return",   f"{gross_ret:+.2f}%",                              "",                                   _col(gross_ret)),
+        (c2, "Win Rate",       f"{metrics.get('win_rate', 0):.1f}%",              f"{metrics.get('n_trades',0)} trades", ""),
+        (c3, "Profit Factor",  pf_str,                                             "",                                   "green" if pf > 1 else "red"),
+        (c4, "Expectancy",     _fmt(metrics.get("expectancy", 0), signed=True),   "per trade",                          _col(metrics.get("expectancy", 0))),
+        (c5, "Max Drawdown",   f"{abs(metrics.get('max_drawdown_pct', 0)):.1f}%", "",                                   "red"),
+        (c6, "Trades",         str(metrics.get("n_trades", 0)),                   "",                                   ""),
     ]
     for col, label, value, sub, cls in cards:
         with col:
@@ -355,15 +354,17 @@ def render_dashboard_page():
     c7, c8, c9, c10, c11, c12 = st.columns(6)
     bd = metrics.get("best_day")
     wd = metrics.get("worst_day")
+    bd_pct = bd["gross_return_pct"] if bd is not None else None
+    wd_pct = wd["gross_return_pct"] if wd is not None else None
     cards2 = [
-        (c7,  "Avg Win",      _fmt(metrics.get("avg_win", 0)),                "",                                          "green"),
-        (c8,  "Avg Loss",     _fmt(metrics.get("avg_loss", 0)),               "",                                          "red"),
-        (c9,  "Best Symbol",  metrics.get("best_symbol", "—") or "—",         "",                                          "green"),
-        (c10, "Worst Symbol", metrics.get("worst_symbol", "—") or "—",        "",                                          "red"),
-        (c11, "Best Day",     _fmt(bd["net_pnl"], signed=True) if bd is not None else "—",
-              str(bd.get("exit_date", "")) if bd is not None else "",          "green"),
-        (c12, "Worst Day",    _fmt(wd["net_pnl"], signed=True) if wd is not None else "—",
-              str(wd.get("exit_date", "")) if wd is not None else "",          "red"),
+        (c7,  "Avg Win",      f"{metrics.get('avg_win_pct', 0):+.2f}%",  "",                                       "green"),
+        (c8,  "Avg Loss",     f"{metrics.get('avg_loss_pct', 0):.2f}%",  "",                                       "red"),
+        (c9,  "Best Symbol",  metrics.get("best_symbol", "—") or "—",    "",                                       "green"),
+        (c10, "Worst Symbol", metrics.get("worst_symbol", "—") or "—",   "",                                       "red"),
+        (c11, "Best Day",     f"{bd_pct:+.2f}%" if bd_pct is not None else "—",
+              str(bd.get("exit_date", "")) if bd is not None else "",     "green"),
+        (c12, "Worst Day",    f"{wd_pct:.2f}%" if wd_pct is not None else "—",
+              str(wd.get("exit_date", "")) if wd is not None else "",     "red"),
     ]
     for col, label, value, sub, cls in cards2:
         with col:
@@ -371,58 +372,24 @@ def render_dashboard_page():
 
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
-    # ── Equity Curve + Drawdown ───────────────────────────────────────────────
+    # ── Gross Return Curve ────────────────────────────────────────────────────
     eq = compute_equity_curve(df)
     if not eq.empty:
-        st.markdown('<div class="section-title">Equity Curve</div>', unsafe_allow_html=True)
-
-        tab1, tab2 = st.tabs(["Cumulative P&L ($)", "Cumulative Return (%)"])
-
-        with tab1:
-            fig = go.Figure()
-            # Gradient fill: positive vs negative
-            fig.add_trace(go.Scatter(
-                x=eq["exit_time"], y=eq["cum_pnl_usd"],
-                mode="lines", name="Cum P&L",
-                line=dict(color=G if net_pnl >= 0 else R, width=2),
-                fill="tozeroy",
-                fillcolor=f"rgba(48,209,88,0.08)" if net_pnl >= 0 else "rgba(255,69,58,0.08)",
-                hovertemplate="<b>%{x|%b %d}</b><br>$%{y:,.2f}<extra></extra>",
-            ))
-            fig.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.12)")
-            fig.update_layout(**_chart_layout(h=280, yaxis_title="Cumulative P&L ($)"))
-            st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
-
-        with tab2:
-            fig2 = go.Figure()
-            fig2.add_trace(go.Scatter(
-                x=eq["exit_time"], y=eq["cum_return_pct"],
-                mode="lines", name="Return %",
-                line=dict(color=B, width=2),
-                fill="tozeroy",
-                fillcolor="rgba(10,132,255,0.08)",
-                hovertemplate="<b>%{x|%b %d}</b><br>%{y:.2f}%<extra></extra>",
-            ))
-            fig2.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.12)")
-            fig2.update_layout(**_chart_layout(h=280, yaxis_title="Cumulative Return (%)"))
-            st.plotly_chart(fig2, width="stretch", config={"displayModeBar": False})
-
-        # Drawdown
-        dd = compute_drawdown(eq)
-        if not dd.empty:
-            st.markdown('<div class="section-title" style="margin-top:8px">Drawdown</div>',
-                        unsafe_allow_html=True)
-            fig_dd = go.Figure()
-            fig_dd.add_trace(go.Scatter(
-                x=dd["exit_time"], y=dd["drawdown_pct"],
-                mode="lines", name="Drawdown",
-                line=dict(color=R, width=1.5),
-                fill="tozeroy",
-                fillcolor="rgba(255,69,58,0.10)",
-                hovertemplate="<b>%{x|%b %d}</b><br>%{y:.2f}%<extra></extra>",
-            ))
-            fig_dd.update_layout(**_chart_layout(h=160, yaxis_title="Drawdown (%)"))
-            st.plotly_chart(fig_dd, width="stretch", config={"displayModeBar": False})
+        st.markdown('<div class="section-title">Cumulative Gross Return</div>', unsafe_allow_html=True)
+        color = G if gross_ret >= 0 else R
+        fill_color = "rgba(48,209,88,0.08)" if gross_ret >= 0 else "rgba(255,69,58,0.08)"
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=eq["exit_time"], y=eq["cum_gross_return_pct"],
+            mode="lines", name="Gross Return %",
+            line=dict(color=color, width=2),
+            fill="tozeroy",
+            fillcolor=fill_color,
+            hovertemplate="<b>%{x|%b %d}</b><br>%{y:.2f}%<extra></extra>",
+        ))
+        fig.add_hline(y=0, line_width=1, line_color="rgba(255,255,255,0.12)")
+        fig.update_layout(**_chart_layout(h=280, yaxis_title="Cumulative Gross Return (%)"))
+        st.plotly_chart(fig, width="stretch", config={"staticPlot": True})
 
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
@@ -441,9 +408,9 @@ def render_dashboard_page():
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
     # ── Distribution ──────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">Trade P&L Distribution</div>', unsafe_allow_html=True)
-    wins_df  = df[df["net_pnl"] > 0]["net_pnl"]
-    loss_df  = df[df["net_pnl"] <= 0]["net_pnl"]
+    st.markdown('<div class="section-title">Trade Gross Return Distribution</div>', unsafe_allow_html=True)
+    wins_df  = df[df["gross_return_pct"] > 0]["gross_return_pct"]
+    loss_df  = df[df["gross_return_pct"] <= 0]["gross_return_pct"]
 
     fig_hist = go.Figure()
     fig_hist.add_trace(go.Histogram(
@@ -457,15 +424,15 @@ def render_dashboard_page():
         hovertemplate="Range: %{x}<br>Count: %{y}<extra></extra>",
     ))
     fig_hist.add_vline(x=0, line_width=1, line_color="rgba(255,255,255,0.3)", line_dash="dash")
-    hist_layout = _chart_layout(h=240, xaxis_title="Net P&L ($)", yaxis_title="Trades")
+    hist_layout = _chart_layout(h=240, xaxis_title="Gross Return (%)", yaxis_title="Trades")
     hist_layout["legend"] = dict(
         orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1,
         font=dict(color=T3, size=11),
     )
     hist_layout["barmode"] = "overlay"
-    hist_layout["bargap"] = 0.04
+    hist_layout["bargap"]  = 0.04
     fig_hist.update_layout(**hist_layout)
-    st.plotly_chart(fig_hist, width="stretch", config={"displayModeBar": False})
+    st.plotly_chart(fig_hist, width="stretch", config={"staticPlot": True})
 
     st.markdown("<hr class='clean-divider'>", unsafe_allow_html=True)
 
