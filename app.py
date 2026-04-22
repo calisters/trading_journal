@@ -82,10 +82,11 @@ st.markdown(
 
 # ── Initialise DB ─────────────────────────────────────────────────────────────
 from db.database import get_engine
-get_engine()  # ensures tables exist on first run
+get_engine()  # ensures tables exist and migrations run on first load
 
 # ── Navigation ────────────────────────────────────────────────────────────────
 from ui.upload import render_upload_page
+from ui.manual_entry import render_manual_entry_page
 from ui.dashboard import render_dashboard_page
 from ui.insights import render_insights_page
 
@@ -94,7 +95,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigate",
-        ["📂 Upload", "📊 Dashboard", "🔍 Insights"],
+        ["📂 Upload", "✍️ Manual Entry", "📊 Dashboard", "🔍 Insights"],
         label_visibility="collapsed",
     )
     st.markdown("---")
@@ -102,8 +103,9 @@ with st.sidebar:
 
 if page == "📂 Upload":
     render_upload_page()
+elif page == "✍️ Manual Entry":
+    render_manual_entry_page()
 elif page == "📊 Dashboard":
     render_dashboard_page()
 elif page == "🔍 Insights":
     render_insights_page()
-
