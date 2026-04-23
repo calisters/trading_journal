@@ -1,7 +1,7 @@
 """Database engine, session factory, and initialisation."""
 import logging
 from pathlib import Path
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, Session
 from db.models import Base
 
@@ -10,6 +10,17 @@ logger = logging.getLogger(__name__)
 DB_PATH = Path("trading_journal.db")
 _engine = None
 _SessionLocal = None
+
+
+def _run_migrations(engine):
+    """Apply incremental schema changes to existing databases."""
+    with engine.connect() as conn:
+        # Add is_manual column if it doesn't exist (added in v2)
+        cols = [row[1] for row in conn.execute(text("PRAGMA table_info(trades)"))]
+        if "is_manual" not in cols:
+            conn.execute(text("ALTER TABLE trades ADD COLUMN is_manual BOOLEAN DEFAULT 0 NOT NULL"))
+            conn.commit()
+            logger.info("Migration: added is_manual column to trades table.")
 
 
 def get_engine():
@@ -25,6 +36,7 @@ def get_engine():
             dbapi_con.execute("PRAGMA foreign_keys=ON")
 
         Base.metadata.create_all(_engine)
+        _run_migrations(_engine)
         logger.info("Database initialised at %s", DB_PATH.absolute())
     return _engine
 

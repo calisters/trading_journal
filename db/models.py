@@ -82,6 +82,9 @@ class Trade(Base):
     currency = Column(String(8))
     account_id = Column(String(64))
 
+    # True for trades entered via the manual entry form (editable/deletable)
+    is_manual = Column(Boolean, default=False, nullable=False)
+
     legs = relationship("TradeLeg", back_populates="trade")
 
 
